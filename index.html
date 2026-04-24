@@ -194,6 +194,7 @@
             align-items: center;
             justify-content: center;
             transition: transform 0.2s;
+            position: relative;
         }
 
         .np-btn:hover {
@@ -203,6 +204,9 @@
         .np-btn.prev::after,
         .np-btn.next::after {
             content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
         }
@@ -216,18 +220,36 @@
         }
 
         .np-btn.play::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-4px);
             border-left: 14px solid white;
             border-top: 9px solid transparent;
             border-bottom: 9px solid transparent;
-            margin-left: 4px;
         }
 
         .np-btn.pause::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-130%);
             width: 6px;
             height: 18px;
             background: white;
             border: none;
-            margin-left: 0;
+            border-radius: 2px;
+            box-shadow: 12px 0 0 white;
+        }
+
+        .np-btn.shuffle::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(45deg,
+                    transparent 30%, white 30%, white 40%, transparent 40%,
+                    transparent 50%, white 50%, white 60%, transparent 60%,
+                    transparent 70%, white 70%, white 80%, transparent 80%);
         }
 
         .progress-container {
@@ -287,6 +309,7 @@
             <div class="np-album" id="npAlbum">-</div>
         </div>
         <div class="np-controls">
+            <button class="np-btn shuffle" id="shuffleBtn" title="Shuffle"></button>
             <button class="np-btn prev" id="prevBtn" title="Previous"></button>
             <button class="np-btn play" id="playPauseBtn" title="Play/Pause"></button>
             <button class="np-btn next" id="nextBtn" title="Next"></button>
@@ -312,6 +335,9 @@
         let allTracks = [];
         let currentIndex = -1;
         let isPlaying = false;
+        let isShuffled = false;
+        let shuffledOrder = [];
+        let originalOrder = [];
 
         const audio = document.getElementById('audio');
         const albumsContainer = document.getElementById('albums');
@@ -323,6 +349,7 @@
         const playPauseBtn = document.getElementById('playPauseBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+        const shuffleBtn = document.getElementById('shuffleBtn');
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
         const currentTimeEl = document.getElementById('currentTime');
@@ -402,6 +429,31 @@
                     path: `${album.name}/${track}`
                 }))
             );
+            originalOrder = [...allTracks];
+            shuffledOrder = [...allTracks];
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function toggleShuffle() {
+            isShuffled = !isShuffled;
+            shuffleBtn.style.opacity = isShuffled ? '1' : '0.5';
+            if (isShuffled) {
+                shuffledOrder = shuffleArray(allTracks);
+            } else {
+                shuffledOrder = [...originalOrder];
+            }
+        }
+
+        function getTrackAtIndex(index) {
+            return isShuffled ? shuffledOrder[index] : allTracks[index];
         }
 
         function playTrack(albumName, trackName) {
@@ -409,6 +461,10 @@
             if (!track) return;
 
             currentIndex = allTracks.indexOf(track);
+            if (isShuffled) {
+                shuffledOrder = shuffleArray(allTracks.filter(t => t !== track));
+                shuffledOrder.unshift(track);
+            }
             audio.src = track.path;
             audio.play();
             isPlaying = true;
@@ -418,7 +474,7 @@
         function updateUI() {
             if (currentIndex < 0) return;
 
-            const track = allTracks[currentIndex];
+            const track = isShuffled ? shuffledOrder[currentIndex] : allTracks[currentIndex];
             npTitle.textContent = track.track.replace('.mp3', '').replace(/\+/g, ' ');
             npAlbum.textContent = track.album;
             nowPlaying.classList.remove('hidden');
@@ -447,7 +503,8 @@
         function prevTrack() {
             if (currentIndex > 0) {
                 currentIndex--;
-                audio.src = allTracks[currentIndex].path;
+                const track = isShuffled ? shuffledOrder[currentIndex] : allTracks[currentIndex];
+                audio.src = track.path;
                 if (isPlaying) audio.play();
                 updateUI();
             }
@@ -456,7 +513,8 @@
         function nextTrack() {
             if (currentIndex < allTracks.length - 1) {
                 currentIndex++;
-                audio.src = allTracks[currentIndex].path;
+                const track = isShuffled ? shuffledOrder[currentIndex] : allTracks[currentIndex];
+                audio.src = track.path;
                 if (isPlaying) audio.play();
                 updateUI();
             }
@@ -490,7 +548,9 @@
         playPauseBtn.addEventListener('click', togglePlay);
         prevBtn.addEventListener('click', prevTrack);
         nextBtn.addEventListener('click', nextTrack);
+        shuffleBtn.addEventListener('click', toggleShuffle);
 
+        shuffleBtn.style.opacity = '0.5';
         fetchMusic();
     </script>
 </body>
