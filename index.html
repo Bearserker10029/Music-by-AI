@@ -445,6 +445,33 @@
         let shuffledOrder = [];
         let originalOrder = [];
 
+        const CACHE_PREFIX = 'musicbyai_';
+        const CACHE_EXPIRY = 60 * 60 * 1000;
+
+        function cacheGet(key) {
+            try {
+                const item = sessionStorage.getItem(CACHE_PREFIX + key);
+                if (!item) return null;
+                const { data, timestamp } = JSON.parse(item);
+                if (Date.now() - timestamp > CACHE_EXPIRY) {
+                    sessionStorage.removeItem(CACHE_PREFIX + key);
+                    return null;
+                }
+                return data;
+            } catch {
+                return null;
+            }
+        }
+
+        function cacheSet(key, data) {
+            try {
+                sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify({
+                    data,
+                    timestamp: Date.now()
+                }));
+            } catch {}
+        }
+
         const audio = document.getElementById('audio');
         const albumsContainer = document.getElementById('albums');
         const loading = document.getElementById('loading');
@@ -467,6 +494,13 @@
 
         async function fetchMusic() {
             try {
+                const cachedAlbums = cacheGet('albums');
+                if (cachedAlbums) {
+                    renderAlbums(cachedAlbums);
+                    buildTrackList(cachedAlbums);
+                    return;
+                }
+
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error('Failed to fetch repository');
 
@@ -476,15 +510,21 @@
                 const albumsData = [];
 
                 for (const folder of folders) {
-                    const folderResponse = await fetch(`${API_URL}/${encodeURIComponent(folder.name)}`);
-                    if (!folderResponse.ok) continue;
+                    const cacheKey = `folder_${folder.name}`;
+                    let files = cacheGet(cacheKey);
 
-                    const files = await folderResponse.json();
+                    if (!files) {
+                        const folderResponse = await fetch(`${API_URL}/${encodeURIComponent(folder.name)}`);
+                        if (!folderResponse.ok) continue;
+                        files = await folderResponse.json();
+                        cacheSet(cacheKey, files);
+                    }
+
                     const mp3Files = files
-                        .filter(file => file.name.endsWith('.mp3'))
+                        .filter(file => file.name.toLowerCase().endsWith('.mp3'))
                         .map(file => file.name);
-                    const hasStyles = files.some(file => file.name === 'styles.md');
-                    const hasLyrics = files.some(file => file.name === 'lyrics.md');
+                    const hasStyles = files.some(file => file.name.toLowerCase() === 'styles.md');
+                    const hasLyrics = files.some(file => file.name.toLowerCase() === 'lyrics.md');
 
                     if (mp3Files.length > 0) {
                         albumsData.push({
@@ -497,6 +537,7 @@
                 }
 
                 albumsData.sort((a, b) => a.name.localeCompare(b.name));
+                cacheSet('albums', albumsData);
                 renderAlbums(albumsData);
                 buildTrackList(albumsData);
 
@@ -661,10 +702,19 @@
 
         async function loadMarkdown(folderName, type) {
             const title = type === 'styles' ? `${folderName} - Styles` : `${folderName} - Lyrics`;
+            const cacheKey = `md_${folderName}_${type}`;
+            const cachedContent = cacheGet(cacheKey);
+
+            if (cachedContent) {
+                openModal(title, cachedContent);
+                return;
+            }
+
             try {
                 const response = await fetch(`${API_URL}/${encodeURIComponent(folderName)}/${type}.md`);
                 if (!response.ok) throw new Error('File not found');
                 const content = await response.text();
+                cacheSet(cacheKey, content);
                 openModal(title, content);
             } catch (err) {
                 openModal(title, `${type === 'styles' ? 'Styles' : 'Lyrics'} file not found.`);
