@@ -123,70 +123,6 @@
             display: none;
         }
 
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: rgba(26, 26, 46, 0.95);
-            border-radius: 16px;
-            padding: 25px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            border: 1px solid rgba(233, 69, 96, 0.3);
-            position: relative;
-        }
-
-        .modal-title {
-            font-size: 1.3rem;
-            color: #e94560;
-            margin-bottom: 15px;
-            padding-right: 30px;
-        }
-
-        .modal-text {
-            color: #ccc;
-            font-size: 0.95rem;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 1.2rem;
-        }
-
-        .modal-close:hover {
-            background: rgba(233, 69, 96, 0.5);
-        }
-
         .track {
             display: flex;
             align-items: center;
@@ -425,14 +361,6 @@
 
     <audio id="audio"></audio>
 
-    <div class="modal-overlay" id="modalOverlay">
-        <div class="modal-content">
-            <div class="modal-close" id="modalClose">×</div>
-            <div class="modal-title" id="modalTitle"></div>
-            <div class="modal-text" id="modalText"></div>
-        </div>
-    </div>
-
     <script>
         const REPO_OWNER = 'Bearserker10029';
         const REPO_NAME = 'Music-by-AI';
@@ -487,10 +415,6 @@
         const progressFill = document.getElementById('progressFill');
         const currentTimeEl = document.getElementById('currentTime');
         const durationEl = document.getElementById('duration');
-        const modalOverlay = document.getElementById('modalOverlay');
-        const modalClose = document.getElementById('modalClose');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalText = document.getElementById('modalText');
 
         async function fetchMusic() {
             try {
@@ -690,50 +614,19 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
-        function openModal(title, content) {
-            modalTitle.textContent = title;
-            modalText.textContent = content;
-            modalOverlay.classList.add('active');
-        }
-
-        function closeModal() {
-            modalOverlay.classList.remove('active');
-        }
-
-        async function loadMarkdown(folderName, type) {
-            const title = type === 'styles' ? `${folderName} - Styles` : `${folderName} - Lyrics`;
-            const cacheKey = `md_${folderName}_${type}`;
-            const cachedContent = cacheGet(cacheKey);
-
-            if (cachedContent) {
-                openModal(title, cachedContent);
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL}/${encodeURIComponent(folderName)}/${type}.md`);
-                if (!response.ok) throw new Error('File not found');
-                const content = await response.text();
-                cacheSet(cacheKey, content);
-                openModal(title, content);
-            } catch (err) {
-                openModal(title, `${type === 'styles' ? 'Styles' : 'Lyrics'} file not found.`);
-            }
+        function openMarkdown(folderName, type) {
+            const branch = 'main';
+            const url = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${branch}/${encodeURIComponent(folderName)}/${type}.md`;
+            window.open(url, '_blank');
         }
 
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('album-btn') && !e.target.classList.contains('hidden')) {
                 const albumName = e.target.dataset.album;
                 const type = e.target.dataset.type;
-                loadMarkdown(albumName, type);
+                openMarkdown(albumName, type);
             }
         });
-
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) closeModal();
-        });
-
-        modalClose.addEventListener('click', closeModal);
 
         audio.addEventListener('timeupdate', () => {
             const percent = (audio.currentTime / audio.duration) * 100;
@@ -762,9 +655,7 @@
         fetchMusic();
 
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Escape') {
-                closeModal();
-            } else if (e.code === 'Space' && currentIndex >= 0) {
+            if (e.code === 'Space' && currentIndex >= 0) {
                 e.preventDefault();
                 togglePlay();
             }
