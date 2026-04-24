@@ -1,0 +1,1 @@
+Y2K R&B, UK Garage pop, jersey club bounce, dreamy synthesizers, soft breathy female vocals, K-pop girl group harmonies, 2000s nostalgic chill groove, upbeat but laid-back, catchy hook

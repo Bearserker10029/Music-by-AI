@@ -1,0 +1,1 @@
+I want you to create a song in the style of Psycho by Babymonster with lyrics in English and Korean.

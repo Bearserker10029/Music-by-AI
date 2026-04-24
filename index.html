@@ -75,9 +75,15 @@
             box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
         }
 
+        .album-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
         .album-title {
             font-size: 1.3rem;
-            margin-bottom: 15px;
             color: #e94560;
             display: flex;
             align-items: center;
@@ -87,6 +93,98 @@
         .album-title::before {
             content: '♪';
             font-size: 1.5rem;
+        }
+
+        .album-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .album-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #fff;
+            transition: background 0.2s;
+        }
+
+        .album-btn:hover {
+            background: rgba(233, 69, 96, 0.5);
+        }
+
+        .album-btn.hidden {
+            display: none;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(26, 26, 46, 0.95);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            color: #e94560;
+            margin-bottom: 15px;
+            padding-right: 30px;
+        }
+
+        .modal-text {
+            color: #ccc;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .modal-close:hover {
+            background: rgba(233, 69, 96, 0.5);
         }
 
         .track {
@@ -327,6 +425,14 @@
 
     <audio id="audio"></audio>
 
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-close" id="modalClose">×</div>
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-text" id="modalText"></div>
+        </div>
+    </div>
+
     <script>
         const REPO_OWNER = 'Bearserker10029';
         const REPO_NAME = 'Music-by-AI';
@@ -354,6 +460,10 @@
         const progressFill = document.getElementById('progressFill');
         const currentTimeEl = document.getElementById('currentTime');
         const durationEl = document.getElementById('duration');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
 
         async function fetchMusic() {
             try {
@@ -373,11 +483,15 @@
                     const mp3Files = files
                         .filter(file => file.name.endsWith('.mp3'))
                         .map(file => file.name);
+                    const hasStyles = files.some(file => file.name === 'styles.md');
+                    const hasLyrics = files.some(file => file.name === 'lyrics.md');
 
                     if (mp3Files.length > 0) {
                         albumsData.push({
                             name: folder.name,
-                            tracks: mp3Files.sort()
+                            tracks: mp3Files.sort(),
+                            hasStyles,
+                            hasLyrics
                         });
                     }
                 }
@@ -401,7 +515,15 @@
             albumsData.forEach(album => {
                 const div = document.createElement('div');
                 div.className = 'album';
-                div.innerHTML = `<div class="album-title">${album.name}</div>`;
+                div.innerHTML = `
+                    <div class="album-header">
+                        <div class="album-title">${album.name}</div>
+                        <div class="album-buttons">
+                            <button class="album-btn ${album.hasStyles ? '' : 'hidden'}" data-album="${album.name}" data-type="styles" title="Styles">S</button>
+                            <button class="album-btn ${album.hasLyrics ? '' : 'hidden'}" data-album="${album.name}" data-type="lyrics" title="Lyrics">L</button>
+                        </div>
+                    </div>
+                `;
 
                 album.tracks.forEach(track => {
                     const trackDiv = document.createElement('div');
@@ -527,6 +649,42 @@
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
 
+        function openModal(title, content) {
+            modalTitle.textContent = title;
+            modalText.textContent = content;
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        async function loadMarkdown(folderName, type) {
+            const title = type === 'styles' ? `${folderName} - Styles` : `${folderName} - Lyrics`;
+            try {
+                const response = await fetch(`${API_URL}/${encodeURIComponent(folderName)}/${type}.md`);
+                if (!response.ok) throw new Error('File not found');
+                const content = await response.text();
+                openModal(title, content);
+            } catch (err) {
+                openModal(title, `${type === 'styles' ? 'Styles' : 'Lyrics'} file not found.`);
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('album-btn') && !e.target.classList.contains('hidden')) {
+                const albumName = e.target.dataset.album;
+                const type = e.target.dataset.type;
+                loadMarkdown(albumName, type);
+            }
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        modalClose.addEventListener('click', closeModal);
+
         audio.addEventListener('timeupdate', () => {
             const percent = (audio.currentTime / audio.duration) * 100;
             progressFill.style.width = `${percent}%`;
@@ -552,6 +710,15 @@
 
         shuffleBtn.style.opacity = '0.5';
         fetchMusic();
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape') {
+                closeModal();
+            } else if (e.code === 'Space' && currentIndex >= 0) {
+                e.preventDefault();
+                togglePlay();
+            }
+        });
     </script>
 </body>
 

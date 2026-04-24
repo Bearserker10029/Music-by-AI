@@ -1,0 +1,1 @@
+Designed with a gentle melody, fingerpicking guitar, perhaps a koto or bamboo flute in the background—where Japanese flows like water and English appears as an echo. Play it as if it were created by Lila Ikutas.

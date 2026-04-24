@@ -1,0 +1,1 @@
+2010s K-pop, anthemic hip-hop, electropop, stadium EDM drop, heavy bass, emotional male vocals, aggressive male dual rap, dramatic build-up, party banger hook, gang vocals, dynamic rhythm changes.
