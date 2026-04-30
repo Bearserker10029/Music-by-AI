@@ -1,0 +1,6 @@
+[Sound DNA — Raw indie rock with lo-fi bedroom recording textures bleeding into full band explosions — like Distortion!! meets Guitar, Loneliness and Blue Planet]
+[Dynamic structure — The entire song mirrors Bocchi's arc: quiet and anxious in verses, explosive in choruses, the bridge is her internal monologue]
+[Guitar tone — Deliberately imperfect: slightly out of tune bends, buzzing strings, overdriven amp hum — sounds like recorded at 3AM in a bedroom]
+[Vocal delivery — Breathy and hesitant in verses → full raw emotion in chorus → almost breaking in the bridge → triumphant but still awkward at the end]
+[Lyrical themes — Social anxiety, music as the only language that works, accidental friendship, performing despite terror, noise shared is less lonely than silence alone]
+[Closest tracks in DNA — Distortion!! + Guitar to Kodoku to Aoi Hoshi + Seishun Complex energy fused into one]

@@ -1,0 +1,6 @@
+[Sound DNA — Hyperpop meets SM cinematic production meets cyber-futuristic synth — Black Mamba meets Next Level meets Savage energy]
+[aespa universe elements — KWANGYA, nævis voice cameo, æ-versions, Black Mamba antagonist, signal/connection metaphors throughout]
+[Language mix — Korean and English switching mid-line naturally, never forced, both carry equal emotional weight]
+[Dynamic structure — Cold precise verses → tension pre-chorus → massive synth chorus drop → eerie nævis bridge → final glitch explosion]
+[Vocal delivery — Icy and controlled in verses → fierce in chorus → ethereal and haunting in bridge → layered and overwhelming in finale]
+[Closest tracks in DNA — Black Mamba + Next Level + Savage + Girls + Spicy]

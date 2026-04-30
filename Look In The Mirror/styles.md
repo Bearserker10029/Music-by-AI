@@ -1,0 +1,6 @@
+[Sound DNA — Orchestral pop meets funk groove meets gospel choir — Man in the Mirror meets Earth Song meets Thriller energy]
+[Signature MJ elements — Whispered intro, urgent pre-chorus, iconic ad-libs: hee-hee, sha-mon, OW placed at peak emotional moments]
+[Dynamic structure — Intimate verses → urgent pre-chorus → anthemic chorus → spoken word bridge → gospel choir finale]
+[Lyrical themes — Social responsibility, mirror as metaphor for self-reflection, one person's power to change the world]
+[Vocal delivery — Controlled and smooth in verses → raw urgency in bridge → triumphant in final chorus]
+[Closest MJ tracks in DNA — Man in the Mirror + Earth Song + Heal the World + Will You Be There]

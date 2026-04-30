@@ -1,0 +1,6 @@
+[Sound DNA — Cinematic indie pop with orchestral strings, sparse piano, subtle electronic textures — Iris Out meets Flamingo meets Lemon emotional depth]
+[Core metaphor — The iris out film technique as a metaphor for memory fading, love ending, the world closing like a camera lens around a person you're losing]
+[Dynamic structure — Fragile whispered verses → restrained emotional chorus → devastating stripped-back finale with no drums]
+[Kenshi signatures — Everyday poetic imagery: umbrellas, rain, photographs, station farewells mixed with existential weight]
+[Vocal delivery — Conversational and intimate in verses → controlled ache in chorus → barely holding together in bridge → gentle surrender in outro]
+[Closest tracks in DNA — Iris Out + Lemon + Placebo + Haiiro to Ao]
